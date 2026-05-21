@@ -17,12 +17,12 @@ return new class extends Migration {
             //  Menghubungkan tugas langsung ke ID di tabel users
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama_tugas');
-            $table->text('url_target'); // URL sosmed tujuan
-            $table->boolean('url_status')->default(0); // 0 = Belum upload, 1 = Sudah upload
+            $table->text('url_target');                 // URL sosmed tujuan
+            $table->boolean('url_status')->default(0);  // 0 = Belum upload, 1 = Sudah upload
             $table->enum('status_verifikasi', ['menunggu', 'acc', 'tolak'])->default('menunggu');
-            $table->string('file_bukti')->nullable(); // Path screenshot di storage
+            $table->string('file_bukti')->nullable();   // Path screenshot di storage
 
-            $table->softDeletes(); // Menambahkan kolom deleted_at untuk soft delete
+            $table->softDeletes();                      // Menambahkan kolom deleted_at untuk soft delete
             $table->timestamps();
         });
     }

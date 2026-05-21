@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
 
 // Akses Tamu/Public
 Route::middleware(['guest'])->group(function () {
@@ -18,9 +19,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Halaman Khusus ADMIN (Hanya bisa diakses role:admin)
 // ==========================================
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->as('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return "<h1>Halaman Dashboard Admin</h1><p>Halo, " . auth()->user()->name . "</p><form action='" . route('logout') . "' method='POST'>" . csrf_field() . "<button type='submit'>Logout</button></form>";
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // RUTE Pembuatan Tugas
+    Route::get('/task/create', [AdminDashboardController::class, 'createTask'])->name('task.create');
+    Route::post('/task/store', [AdminDashboardController::class, 'storeTask'])->name('task.store');
 });
 
 
@@ -28,7 +31,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->as('admin.')->group(
 // Halaman Khusus PEGAWAI (Hanya bisa diakses role:pegawai)
 // ==========================================
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->as('pegawai.')->group(function () {
-    Route::get('/dashboard', function () {
-        return "<h1>Halaman Dashboard Pegawai</h1><p>Halo, " . auth()->user()->name . "</p><form action='" . route('logout') . "' method='POST'>" . csrf_field() . "<button type='submit'>Logout</button></form>";
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Pegawai\PegawaiDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/task/{id}/upload', [\App\Http\Controllers\Pegawai\PegawaiDashboardController::class, 'uploadBukti'])->name('task.upload');
 });
