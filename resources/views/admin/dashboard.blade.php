@@ -91,6 +91,7 @@
                             <th class="px-6 py-3">Nama Tugas</th>
                             <th class="px-6 py-3">Kode Unik</th>
                             <th class="px-6 py-3">Status Verifikasi</th>
+                            <th class="px-6 py-3">Tanggal Selesai</th>
                             <th class="px-6 py-3 text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -125,6 +126,20 @@
                                             Dikerjakan</span>
                                     @endif
                                 </td>
+
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    @if ($tracking->file_bukti)
+                                        <div class="font-medium text-slate-900">
+                                            {{ $tracking->updated_at->translatedFormat('d M Y') }}
+                                        </div>
+                                        <div class="text-xs text-slate-400">
+                                            Pukul {{ $tracking->updated_at->format('H:i') }} WITA
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-slate-400 italic">Belum mengunggah</span>
+                                    @endif
+                                </td>
+
                                 <td class="px-6 py-4 text-right space-y-2">
                                     <!-- Cek Apakah Pegawai Sudah Mengunggah Bukti -->
                                     @if ($tracking->file_bukti)
