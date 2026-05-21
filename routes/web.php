@@ -24,6 +24,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->as('admin.')->group(
     // RUTE Pembuatan Tugas
     Route::get('/task/create', [AdminDashboardController::class, 'createTask'])->name('task.create');
     Route::post('/task/store', [AdminDashboardController::class, 'storeTask'])->name('task.store');
+    // RUTE Verifikasi Tugas (ACC / Tolak)
+    Route::post('/task/{id}/verifikasi', [AdminDashboardController::class, 'verifikasiTask'])->name('task.verifikasi');
 });
 
 

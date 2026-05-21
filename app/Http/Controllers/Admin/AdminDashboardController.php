@@ -38,6 +38,32 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Memproses verifikasi (ACC / Tolak) bukti tugas pegawai.
+     */
+    public function verifikasiTask(Request $request, $id)
+    {
+        $request->validate([
+            'aksi' => ['required', 'in:acc,tolak'],
+        ]);
+
+        $task = LinkTracking::findOrFail($id);
+
+        // Jika admin menolak, kita bisa mengosongkan status unggahan agar pegawai bisa kirim ulang
+        $urlStatus = ($request->aksi === 'tolak') ? 0 : 1;
+
+        $task->update([
+            'status_verifikasi' => $request->aksi,
+            'url_status' => $urlStatus
+        ]);
+
+        $pesan = $request->aksi === 'acc'
+            ? 'Tugas berhasil disetujui (ACC)!'
+            : 'Tugas telah ditolak. Pegawai diminta mengunggah ulang bukti.';
+
+        return back()->with('success', $pesan);
+    }
+
+    /**
      * Memproses pembuatan tugas secara massal ke akun pegawai.
      */
     public function storeTask(Request $request)
