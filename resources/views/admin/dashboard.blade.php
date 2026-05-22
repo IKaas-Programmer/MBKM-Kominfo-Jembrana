@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Jembrana Kab</title>
-    @vite('resources/css/app.css', 'resources/js/app.js')
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/'])
 </head>
 
 <body class="bg-slate-50 font-sans text-slate-900 antialiased">
@@ -45,21 +45,20 @@
             </div>
         </div>
 
-        <!-- Notifikasi Sukses dengan ID untuk Auto-Hide -->
+        <!-- Notifikasi Sukses (Auto-Hide & Manual Close) -->
         @if (session('success'))
             <div id="success-alert"
                 class="transition-all duration-500 ease-in-out opacity-100 max-h-40 rounded-lg bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-700 shadow-sm mb-6">
                 <div class="flex justify-between items-center">
                     <span>{{ session('success') }}</span>
-                    <!-- Tombol Close Manual -->
                     <button onclick="dismissAlert()"
-                        class="text-emerald-500 hover:text-emerald-700 font-bold ml-3 cursor-pointer">×</button>
+                        class="text-emerald-500 hover:text-emerald-700 font-bold ml-3 cursor-pointer text-lg leading-none">×</button>
                 </div>
             </div>
         @endif
 
         <!-- Grid Kartu Statistik -->
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
             <!-- Card Total Pegawai -->
             <a href="{{ route('admin.pegawai.index') }}"
@@ -67,21 +66,15 @@
                 <div class="flex items-center justify-between">
                     <div class="space-y-2">
                         <p class="text-sm font-medium text-slate-500 group-hover:text-slate-600">Total Pegawai</p>
-                        <!-- Tampilkan data count dinamis dari controller -->
                         <h4 class="text-3xl font-bold tracking-tight text-slate-900">{{ $totalPegawai ?? 0 }}</h4>
                     </div>
-
-                    <!-- Icon Kontainer -->
                     <div class="rounded-lg bg-blue-50 p-3 text-blue-600 transition-colors group-hover:bg-blue-100">
-                        <!-- Contoh Icon SVG Pegawai / Users -->
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                         </svg>
                     </div>
                 </div>
-
-                <!-- Indikator Tautan Tambahan (Opsional untuk UX yang lebih baik) -->
                 <div
                     class="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <span>Lihat semua data pegawai</span>
@@ -92,22 +85,31 @@
                 </div>
             </a>
 
-            <!-- Card 2 -->
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Pegawai PNS</p>
-                <p class="mt-2 text-3xl font-bold text-emerald-600">{{ $stats['pegawai_pns'] }}</p>
+            <!-- Kartu Data Postingan -->
+            <a href="{{ route('admin.postingan.index') }}"
+                class="block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-500 group-hover:text-blue-600">Data Postingan</span>
+                    <span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium">Lihat Semua →</span>
+                </div>
+                <div class="mt-4 flex items-baseline gap-2">
+                    <span class="text-3xl font-bold tracking-tight text-slate-900">
+                        {{ $stats['total_postingan'] ?? 0 }}
+                    </span>
+                    <span class="text-xs text-slate-400">Tugas Publikasi</span>
+                </div>
+            </a>
+
+            <!-- Card Pegawai Non-PNS -->
+            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
+                <p class="text-sm font-medium text-slate-500">Pegawai Non-ASN / Non-PNS</p>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-amber-600">{{ $stats['pegawai_non'] ?? 0 }}</p>
             </div>
 
-            <!-- Card 3 -->
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Pegawai Non-PNS</p>
-                <p class="mt-2 text-3xl font-bold text-amber-600">{{ $stats['pegawai_non'] }}</p>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Menunggu Verifikasi</p>
-                <p class="mt-2 text-3xl font-bold text-blue-600">{{ $stats['tugas_menunggu'] }}</p>
+            <!-- Card Menunggu Verifikasi -->
+            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
+                <p class="text-sm font-medium text-slate-500">Menunggu Verifikasi</p>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-blue-600">{{ $stats['tugas_menunggu'] ?? 0 }}</p>
             </div>
 
         </div>
@@ -138,14 +140,17 @@
                                     <div class="text-xs text-slate-400">{{ $tracking->user->nip }}</div>
                                 </td>
                                 <td class="px-6 py-4 text-slate-600 max-w-xs truncate">
-                                    <div>{{ $tracking->nama_tugas }}</div>
-                                    <!-- Tautan untuk mengecek link sosmed target yang asli -->
+                                    <div class="font-medium text-slate-800">{{ $tracking->nama_tugas }}</div>
                                     <a href="{{ $tracking->url_target }}" target="_blank"
-                                        class="text-xs text-blue-500 hover:underline">Buka Link Target →</a>
+                                        class="text-xs text-blue-500 hover:underline inline-flex items-center gap-0.5 mt-0.5">
+                                        Buka Link Target →
+                                    </a>
                                 </td>
                                 <td class="px-6 py-4 font-mono text-xs text-slate-500">{{ $tracking->kode_unik }}</td>
                                 <td class="px-6 py-4">
-                                    @if ($tracking->status_verifikasi === 'menunggu' && $tracking->url_status == 1)
+                                    @if (
+                                        $tracking->status_verifikasi === 'menunggu' ||
+                                            ($tracking->status_verifikasi === 'menunggu' && $tracking->url_status == 1))
                                         <span
                                             class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 border border-blue-200">Menunggu
                                             Verifikasi</span>
@@ -175,43 +180,39 @@
                                     @endif
                                 </td>
 
-                                <td class="px-6 py-4 text-right space-y-2">
-                                    <!-- Cek Apakah Pegawai Sudah Mengunggah Bukti -->
+                                <td class="px-6 py-4 text-right">
                                     @if ($tracking->file_bukti)
-                                        <div class="flex flex-col items-end gap-1.5">
+                                        <div class="flex flex-col items-end gap-2">
                                             <!-- Tombol Lihat Gambar Bukti -->
                                             <a href="{{ asset('storage/' . $tracking->file_bukti) }}" target="_blank"
                                                 class="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2.5 py-1 rounded-md transition-all">
                                                 👁️ Lihat Bukti
                                             </a>
 
-                                            <!-- Tombol Aksi Persetujuan Cepat (Hanya muncul jika status belum disetujui secara permanen) -->
-                                            @if ($tracking->status_verifikasi !== 'acc')
+                                            <!-- Tombol Verifikasi Cepat -->
+                                            @if ($tracking->status_verifikasi === 'menunggu')
                                                 <div class="flex items-center gap-1">
                                                     <!-- Form ACC -->
                                                     <form action="{{ route('admin.task.verifikasi', $tracking->id) }}"
                                                         method="POST" class="inline">
                                                         @csrf
-                                                        <input type="hidden" name="action" value="acc">
-                                                        <!-- Penyesuaian nama field request -->
-                                                        <button type="submit" name="aksi" value="acc"
-                                                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2 py-1 rounded-md transition-all cursor-pointer shadow-xs">
+                                                        <input type="hidden" name="aksi" value="acc">
+                                                        <button type="submit"
+                                                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-xs">
                                                             ACC
                                                         </button>
                                                     </form>
 
                                                     <!-- Form Tolak -->
-                                                    @if ($tracking->status_verifikasi !== 'tolak')
-                                                        <form
-                                                            action="{{ route('admin.task.verifikasi', $tracking->id) }}"
-                                                            method="POST" class="inline">
-                                                            @csrf
-                                                            <button type="submit" name="aksi" value="tolak"
-                                                                class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold px-2 py-1 rounded-md transition-all cursor-pointer shadow-xs">
-                                                                Tolak
-                                                            </button>
-                                                        </form>
-                                                    @endif
+                                                    <form action="{{ route('admin.task.verifikasi', $tracking->id) }}"
+                                                        method="POST" class="inline">
+                                                        @csrf
+                                                        <input type="hidden" name="aksi" value="tolak">
+                                                        <button type="submit"
+                                                            class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-xs">
+                                                            Tolak
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             @endif
                                         </div>
@@ -222,8 +223,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-sm text-slate-400">Belum ada
-                                    aktivitas tugas pelacakan saat ini.</td>
+                                <td colspan="6" class="px-6 py-10 text-center text-sm text-slate-400">
+                                    Belum ada aktivitas tugas pelacakan saat ini.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -34,6 +34,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->as('admin.')->group(
 
     // RUTE Verifikasi Tugas (ACC / Tolak)
     Route::post('/task/{id}/verifikasi', [AdminDashboardController::class, 'verifikasiTask'])->name('task.verifikasi');
+
+    // Data Postingan
+    Route::get('/postingan', [AdminDashboardController::class, 'indexPostingan'])->name('postingan.index');
+    Route::get('/postingan/detail', [AdminDashboardController::class, 'showPostingan'])->name('postingan.show');
 });
 
 

@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.admin')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Pegawai - Jembrana Kab</title>
-    {{-- Memuat aset CSS global, JS global, dan skrip pencarian otomatis khusus secara modular via Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/pegawai-search.js'])
-</head>
+@section('title', 'Data Pegawai')
 
-<body class="bg-slate-50 font-sans text-slate-900 antialiased">
-
-    <!-- Top Navigation -->
-    <header
-        class="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-6 shadow-xs">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.dashboard') }}" class="text-sm font-medium text-blue-600 hover:underline">
-                ← Kembali ke Dashboard
-            </a>
-        </div>
-        <span class="text-sm font-semibold text-slate-500">Panel Admin</span>
-    </header>
-
-    <main class="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8 space-y-6">
+@section('content')
+    <div class="max-w-6xl mx-auto space-y-6">
 
         <!-- Header Section -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -33,7 +14,7 @@
         </div>
 
         <!-- Form Pencarian (Terintegrasi otomatis dengan resources/js/pegawai-search.js) -->
-        <form id="searchForm" action="{{ route('admin.pegawai.index') }}" method="GET" class="mb-4 flex gap-2">
+        <form id="searchForm" action="{{ route('admin.pegawai.index') }}" method="GET" class="flex gap-2">
             <input id="searchInput" type="text" name="search" value="{{ $currentSearch ?? '' }}"
                 placeholder="Cari nama atau NIP pegawai..."
                 class="rounded-lg border border-slate-200 px-4 py-2 text-sm w-full max-w-xs focus:border-blue-500 focus:outline-hidden"
@@ -101,9 +82,10 @@
             </div>
         @endif
     </div>
+</div>
+@endsection
 
-</main>
-
-</body>
-
-</html>
+{{-- Dorong skrip pencarian khusus ke stack javascript di bagian bawah layout master --}}
+@push('scripts')
+@vite(['resources/js/pegawai-search.js'])
+@endpush

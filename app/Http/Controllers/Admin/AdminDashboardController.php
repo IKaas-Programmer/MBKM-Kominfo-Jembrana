@@ -13,17 +13,24 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // 1. Ambil data statistik ringkas
-        $stats = [
-            'pegawai_pns' => User::where('role', 'pegawai')->where('status_kerja', 'PNS')->count(),
-            'pegawai_non' => User::where('role', 'pegawai')->where('status_kerja', 'NON_PNS')->count(),
-            'tugas_menunggu' => LinkTracking::where('status_verifikasi', 'menunggu')->count(),
-        ];
 
         // Ekstrak total pegawai agar sinkron dengan di Blade (untuk link ke halaman pegawai)
         $totalPegawai = User::where('role', 'pegawai')->count();
 
-        // 2. Ambil 5 riwayat pelacakan tautan terbaru beserta data pegawainya (Eager Loading)
+        // HITUNG DATA POSTINGAN (TUGAS UNIK)
+        $totalPostingan = LinkTracking::groupBy('nama_tugas', 'url_target')
+            ->distinct()
+            ->count();
+
+        //  Ambil data statistik ringkas
+        $stats = [
+            'pegawai_pns' => User::where('role', 'pegawai')->where('status_kerja', 'PNS')->count(),
+            'pegawai_non' => User::where('role', 'pegawai')->where('status_kerja', 'NON_PNS')->count(),
+            'tugas_menunggu' => LinkTracking::where('status_verifikasi', 'menunggu')->count(),
+            'total_postingan' => $totalPostingan, // Simpan ke dalam array statistik
+        ];
+
+        //  Ambil 5 riwayat pelacakan tautan terbaru beserta data pegawainya (Eager Loading)
         $recentTrackings = LinkTracking::with('user')
             ->latest()
             ->limit(5)
@@ -121,5 +128,43 @@ class AdminDashboardController extends Controller
         });
 
         return redirect()->route('admin.dashboard')->with('success', 'Tugas publikasi berhasil disebarkan ke ' . $pegawais->count() . ' pegawai!');
+    }
+
+    /**
+     * Menampilkan semua daftar tugas publikasi unik (Daftar Postingan).
+     */
+    public function indexPostingan()
+    {
+        // Ambil data unik nama_tugas dan url_target lengkap dengan agregasi nilai pendukung
+        $postingans = LinkTracking::select(
+            'nama_tugas',
+            'url_target',
+            DB::raw('MAX(deadline) as deadline'),
+            DB::raw('COUNT(id) as total_sasaran')
+        )
+            ->groupBy('nama_tugas', 'url_target')
+            ->latest(DB::raw('MAX(created_at)'))
+            ->paginate(10); // Menangani pagination {{ $postingans->links() }} di Blade
+
+        return view('admin.postingan.index', compact('postingans'));
+    }
+
+    /**
+     * Menampilkan detail semua pegawai yang menerima tugas spesifik ini beserta statusnya.
+     */
+    public function showPostingan(Request $request)
+    {
+        $request->validate([
+            'nama_tugas' => 'required|string',
+        ]);
+
+        $namaTugas = $request->nama_tugas;
+
+        // Ambil semua record pegawai yang ditugaskan pada postingan ini
+        $trackings = LinkTracking::with('user')
+            ->where('nama_tugas', $namaTugas)
+            ->get();
+
+        return view('admin.postingan.show', compact('trackings', 'namaTugas'));
     }
 }
