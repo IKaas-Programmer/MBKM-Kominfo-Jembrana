@@ -13,26 +13,38 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
+        // // Update otomatis status tugas yang sudah melewati deadline menjadi "kedaluwarsa"
+        // LinkTracking::where('status_verifikasi', 'menunggu')
+        //     ->where('deadline', '<=', now())
+        //     ->update(['status_verifikasi' => 'kedaluwarsa']);
 
         // Ekstrak total pegawai agar sinkron dengan di Blade (untuk link ke halaman pegawai)
         $totalPegawai = User::where('role', 'pegawai')->count();
+        $pegawaiNon = User::where('role', 'pegawai')->where('status_kerja', 'NON_PNS')->count();
 
         // HITUNG DATA POSTINGAN (TUGAS UNIK)
-        $totalPostingan = LinkTracking::distinct('nama_tugas')->count('nama_tugas');
+        $totalPostingan = LinkTracking::distinct('nama_tugas')
+            // ->where('deadline', '>', now()) 
+            ->count('nama_tugas');
+
+        $waitingVerification = LinkTracking::where('status_verifikasi', 'menunggu')
+            ->where('deadline', '>', now()) // Menyaring agar yang sudah lewat masa tenggat tidak dihitung
+            ->count();
+
+        //  Ambil 10 riwayat pelacakan tautan terbaru beserta data pegawainya (Eager Loading)
+        $recentTrackings = LinkTracking::with('user')
+            ->where('status_verifikasi', '!=', 'kedaluwarsa')
+            ->latest()
+            ->limit(10)
+            ->get();
 
         //  Ambil data statistik ringkas
         $stats = [
-            'pegawai_pns' => User::where('role', 'pegawai')->where('status_kerja', 'PNS')->count(),
-            'pegawai_non' => User::where('role', 'pegawai')->where('status_kerja', 'NON_PNS')->count(),
-            'tugas_menunggu' => LinkTracking::where('status_verifikasi', 'menunggu')->count(),
+            'pegawai_non' => $pegawaiNon,
+            'tugas_menunggu' => $waitingVerification,
             'total_postingan' => $totalPostingan, // Simpan ke dalam array statistik
         ];
 
-        //  Ambil 5 riwayat pelacakan tautan terbaru beserta data pegawainya (Eager Loading)
-        $recentTrackings = LinkTracking::with('user')
-            ->latest()
-            ->limit(5)
-            ->get();
 
         return view('admin.dashboard', compact('stats', 'recentTrackings', 'totalPegawai'));
     }
@@ -98,18 +110,22 @@ class AdminDashboardController extends Controller
             return back()->withErrors(['sasaran_kerja' => 'Tidak ditemukan pegawai dengan kategori status kerja tersebut.']);
         }
 
+        //  Tarik semua kode unik yang ada saat ini ke dalam memori Array sekali saja
+        $existingCodes = array_flip(LinkTracking::pluck('kode_unik')->toArray());
+
         //  Gunakan Database Transaction & Bulk Insert untuk performa tinggi
         DB::transaction(function () use ($pegawais, $request, $urlTarget) {
             $dataInsert = [];
             $now = now();
 
             foreach ($pegawais as $pegawai) {
-                $kodeUnik = 'JMB-' . strtoupper(Str::random(5));
-
-                // Pengecekan keunikan kode tetap dipertahankan
-                while (LinkTracking::where('kode_unik', $kodeUnik)->exists()) {
+                // Pengecekan keunikan kode memanfaatkan array di memori 
+                do {
                     $kodeUnik = 'JMB-' . strtoupper(Str::random(5));
-                }
+                } while (isset($existingCodes[$kodeUnik]));
+
+                // Catat kode baru agar iterasi pegawai selanjutnya tidak duplikat
+                $existingCodes[$kodeUnik] = true;
 
                 $dataInsert[] = [
                     'user_id' => $pegawai->id,
@@ -139,12 +155,13 @@ class AdminDashboardController extends Controller
         // Mengelompokkan HANYA berdasarkan nama_tugas agar jumlahnya akurat
         $postingans = LinkTracking::select(
             'nama_tugas',
-            DB::raw('MAX(url_target) as url_target'), // Mengambil salah satu sampel URL
+            DB::raw('MAX(url_target) as url_target'),
             DB::raw('MAX(deadline) as deadline'),
+            DB::raw('MAX(created_at) as terakhir_dibuat'),
             DB::raw('COUNT(id) as total_sasaran')
         )
             ->groupBy('nama_tugas')
-            ->latest(DB::raw('MAX(created_at)'))
+            ->orderBy('terakhir_dibuat', 'desc')
             ->paginate(10);                         // Menangani pagination {{ $postingans->links() }} di Blade
 
         return view('admin.postingan.index', compact('postingans'));

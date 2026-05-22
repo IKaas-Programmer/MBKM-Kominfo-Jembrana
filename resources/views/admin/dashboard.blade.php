@@ -75,6 +75,7 @@
                         </svg>
                     </div>
                 </div>
+
                 <div
                     class="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <span>Lihat semua data pegawai</span>
@@ -87,30 +88,54 @@
 
             <!-- Kartu Data Postingan -->
             <a href="{{ route('admin.postingan.index') }}"
-                class="block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                class="group block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+
+                <!-- Bagian Atas: Judul dan Icon/Label -->
                 <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-slate-500 group-hover:text-blue-600">Data Postingan</span>
-                    <span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium">Lihat Semua →</span>
+                    <span class="text-sm font-medium text-slate-500 group-hover:text-slate-600">Data Postingan</span>
+                    <div
+                        class="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors duration-200">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                    </div>
                 </div>
+
+                <!-- Bagian Tengah: Angka Statistik -->
                 <div class="mt-4 flex items-baseline gap-2">
                     <span class="text-3xl font-bold tracking-tight text-slate-900">
                         {{ $stats['total_postingan'] ?? 0 }}
                     </span>
                     <span class="text-xs text-slate-400">Tugas Publikasi</span>
                 </div>
+
+                <!-- Bagian Bawah: Tombol Lihat Semua (Pindah ke bawah dengan efek Hover) -->
+                <div
+                    class="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <span>Lihat semua data postingan</span>
+                    <svg class="h-3.5 w-3.5 transform translate-x-0 group-hover:translate-x-0.5 transition-transform"
+                        fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7M21 12H3" />
+                    </svg>
+                </div>
             </a>
 
+            <!-- Card Menunggu Verifikasi -->
+            <div
+                class="group block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"">
+                <p class="text-sm font-medium text-slate-500">Menunggu Verifikasi</p>
+                <p class="mt-4 text-3xl font-bold tracking-tight text-blue-600">{{ $stats['tugas_menunggu'] ?? 0 }}</p>
+            </div>
+
             <!-- Card Pegawai Non-PNS -->
-            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
+            <div
+                class="group block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"">
                 <p class="text-sm font-medium text-slate-500">Pegawai Non-ASN / Non-PNS</p>
                 <p class="mt-4 text-3xl font-bold tracking-tight text-amber-600">{{ $stats['pegawai_non'] ?? 0 }}</p>
             </div>
 
-            <!-- Card Menunggu Verifikasi -->
-            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
-                <p class="text-sm font-medium text-slate-500">Menunggu Verifikasi</p>
-                <p class="mt-4 text-3xl font-bold tracking-tight text-blue-600">{{ $stats['tugas_menunggu'] ?? 0 }}</p>
-            </div>
+
 
         </div>
 
@@ -147,23 +172,33 @@
                                     </a>
                                 </td>
                                 <td class="px-6 py-4 font-mono text-xs text-slate-500">{{ $tracking->kode_unik }}</td>
+
                                 <td class="px-6 py-4">
-                                    @if (
-                                        $tracking->status_verifikasi === 'menunggu' ||
-                                            ($tracking->status_verifikasi === 'menunggu' && $tracking->url_status == 1))
+                                    @if ($tracking->status_verifikasi === 'menunggu' && $tracking->deadline <= now())
                                         <span
-                                            class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 border border-blue-200">Menunggu
-                                            Verifikasi</span>
+                                            class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 border border-red-200">
+                                            ⚠️ Kedaluwarsa
+                                        </span>
+                                    @elseif ($tracking->status_verifikasi === 'menunggu')
+                                        <span
+                                            class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 border border-blue-200">
+                                            Menunggu Verifikasi
+                                        </span>
                                     @elseif($tracking->status_verifikasi === 'acc')
                                         <span
-                                            class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 border border-emerald-200">Disetujui</span>
+                                            class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 border border-emerald-200">
+                                            Disetujui
+                                        </span>
                                     @elseif($tracking->status_verifikasi === 'tolak')
                                         <span
-                                            class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 border border-red-200">Ditolak</span>
+                                            class="inline-flex items-center rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 border border-rose-200">
+                                            Ditolak
+                                        </span>
                                     @else
                                         <span
-                                            class="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-500 border border-slate-200">Belum
-                                            Dikerjakan</span>
+                                            class="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-500 border border-slate-200">
+                                            Belum Dikerjakan
+                                        </span>
                                     @endif
                                 </td>
 
