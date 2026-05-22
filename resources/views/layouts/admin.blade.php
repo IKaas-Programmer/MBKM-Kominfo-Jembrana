@@ -19,7 +19,7 @@
     <div class="flex h-screen overflow-hidden">
 
         <!-- SIDEBAR NAVIGASI -->
-        <aside class="w-64 border-r border-slate-200 bg-white flex flex-col justify-between hidden md:flex">
+        <aside class="w-64 border-r border-slate-200 bg-white flex-col justify-between hidden md:flex">
             <div class="p-6 space-y-6">
                 <!-- Logo / Nama Sistem -->
                 <div class="flex items-center gap-2">

@@ -18,9 +18,7 @@ class AdminDashboardController extends Controller
         $totalPegawai = User::where('role', 'pegawai')->count();
 
         // HITUNG DATA POSTINGAN (TUGAS UNIK)
-        $totalPostingan = LinkTracking::groupBy('nama_tugas', 'url_target')
-            ->distinct()
-            ->count();
+        $totalPostingan = LinkTracking::distinct('nama_tugas')->count('nama_tugas');
 
         //  Ambil data statistik ringkas
         $stats = [
@@ -84,6 +82,9 @@ class AdminDashboardController extends Controller
             'sasaran_kerja' => ['required', 'in:SEMUA,PNS,NON_PNS'],
         ]);
 
+        $urlTarget = rtrim(trim($request->url_target), '/');
+        // Ini akan mengubah " https://google.com/ " menjadi "https://google.com"
+
         //  Filter pegawai berdasarkan sasaran yang dipilih admin
         $queryPegawai = User::where('role', 'pegawai');
 
@@ -98,7 +99,7 @@ class AdminDashboardController extends Controller
         }
 
         //  Gunakan Database Transaction & Bulk Insert untuk performa tinggi
-        DB::transaction(function () use ($pegawais, $request) {
+        DB::transaction(function () use ($pegawais, $request, $urlTarget) {
             $dataInsert = [];
             $now = now();
 
@@ -114,7 +115,7 @@ class AdminDashboardController extends Controller
                     'user_id' => $pegawai->id,
                     'kode_unik' => $kodeUnik,
                     'nama_tugas' => $request->nama_tugas,
-                    'url_target' => $request->url_target,
+                    'url_target' => $urlTarget,
                     'deadline' => $request->deadline,
                     'url_status' => 0,
                     'status_verifikasi' => 'menunggu',
@@ -135,16 +136,16 @@ class AdminDashboardController extends Controller
      */
     public function indexPostingan()
     {
-        // Ambil data unik nama_tugas dan url_target lengkap dengan agregasi nilai pendukung
+        // Mengelompokkan HANYA berdasarkan nama_tugas agar jumlahnya akurat
         $postingans = LinkTracking::select(
             'nama_tugas',
-            'url_target',
+            DB::raw('MAX(url_target) as url_target'), // Mengambil salah satu sampel URL
             DB::raw('MAX(deadline) as deadline'),
             DB::raw('COUNT(id) as total_sasaran')
         )
-            ->groupBy('nama_tugas', 'url_target')
+            ->groupBy('nama_tugas')
             ->latest(DB::raw('MAX(created_at)'))
-            ->paginate(10); // Menangani pagination {{ $postingans->links() }} di Blade
+            ->paginate(10);                         // Menangani pagination {{ $postingans->links() }} di Blade
 
         return view('admin.postingan.index', compact('postingans'));
     }

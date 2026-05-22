@@ -22,26 +22,35 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($postingans as $postingan)
                         <tr class="hover:bg-slate-50/70">
+
                             <td class="px-6 py-4">
                                 <span class="font-medium text-slate-900 block">{{ $postingan->nama_tugas }}</span>
-                                <span
-                                    class="text-xs text-blue-600 font-mono block truncate max-w-xs">{{ $postingan->url_target }}</span>
+                                <!-- Perubahan: Mengubah span menjadi tag link (a) yang bisa diklik -->
+                                <a href="{{ $postingan->url_target }}" target="_blank" rel="noopener noreferrer"
+                                    class="text-xs text-blue-600 hover:text-blue-800 font-mono block truncate max-w-xs hover:underline"
+                                    title="Buka tautan target">
+                                    {{ $postingan->url_target }}
+                                </a>
                             </td>
+
                             <td class="px-6 py-4 text-xs">
                                 {{ \Carbon\Carbon::parse($postingan->deadline)->translatedFormat('d M Y, H:i') }} Wita
                             </td>
+
                             <td class="px-6 py-4">
                                 <span
                                     class="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
                                     {{ $postingan->total_sasaran }} Pegawai
                                 </span>
                             </td>
+
                             <td class="px-6 py-4">
                                 <a href="{{ route('admin.postingan.show', ['nama_tugas' => $postingan->nama_tugas]) }}"
                                     class="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline">
                                     Pantau Progress →
                                 </a>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
