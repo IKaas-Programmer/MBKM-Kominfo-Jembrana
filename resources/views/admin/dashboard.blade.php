@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Jembrana Kab</title>
-    @vite('resources/css/app.css')
+    @vite('resources/css/app.css', 'resources/js/app.js')
 </head>
 
 <body class="bg-slate-50 font-sans text-slate-900 antialiased">
@@ -35,21 +35,26 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard Pemantauan</h1>
-                <p class="text-sm text-slate-500">Ringkasan berkas publikasi dan aktivitas media sosial pegawai hari
-                    ini.</p>
+                <p class="text-sm text-slate-500">Ringkasan berkas publikasi dan aktivitas media sosial pegawai.</p>
             </div>
             <div>
                 <a href="{{ route('admin.task.create') }}"
                     class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all cursor-pointer">
-                    ➕ Buat Tugas Baru
+                    Buat Tugas Baru
                 </a>
             </div>
         </div>
 
-        <!-- Tambahkan Notifikasi Sukses di bawah Header Page -->
+        <!-- Notifikasi Sukses dengan ID untuk Auto-Hide -->
         @if (session('success'))
-            <div class="mt-4 rounded-lg bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-700">
-                {{ session('success') }}
+            <div id="success-alert"
+                class="transition-all duration-500 ease-in-out opacity-100 max-h-40 rounded-lg bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-700 shadow-sm mb-6">
+                <div class="flex justify-between items-center">
+                    <span>{{ session('success') }}</span>
+                    <!-- Tombol Close Manual -->
+                    <button onclick="dismissAlert()"
+                        class="text-emerald-500 hover:text-emerald-700 font-bold ml-3 cursor-pointer">×</button>
+                </div>
             </div>
         @endif
 
