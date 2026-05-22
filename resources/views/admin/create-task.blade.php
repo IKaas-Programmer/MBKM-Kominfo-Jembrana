@@ -57,42 +57,49 @@
                         class="w-full rounded-lg border border-slate-300 px-4 py-2.5  focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-mono text-xs">
                 </div>
 
-                <!-- Sasaran Distribusi Tugas -->
+                <!-- Deadline Tugas -->
                 <div>
-                    <label for="sasaran_kerja" class="block text-sm font-medium text-slate-700 mb-2">Target Sasaran
-                        Pegawai</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <label
-                            class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer transition-all">
-                            <input type="radio" name="sasaran_kerja" value="SEMUA" checked
-                                class="text-blue-600 focus:ring-blue-500">
-                            <span class="text-sm font-medium text-slate-800">Semua Pegawai</span>
-                        </label>
-                        <label
-                            class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer transition-all">
-                            <input type="radio" name="sasaran_kerja" value="PNS"
-                                class="text-blue-600 focus:ring-blue-500">
-                            <span class="text-sm font-medium text-slate-800">PNS Sahaja</span>
-                        </label>
-                        <label
-                            class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer transition-all">
-                            <input type="radio" name="sasaran_kerja" value="NON_PNS"
-                                class="text-blue-600 focus:ring-blue-500">
-                            <span class="text-sm font-medium text-slate-800">Non-PNS Kontrak</span>
-                        </label>
-                    </div>
+                    <label for="deadline" class="block text-sm font-medium text-slate-700 mb-1">Deadline Tugas</label>
+                    <input type="datetime-local" name="deadline" id="deadline" value="{{ old('deadline') }}"
+                        class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all">
                 </div>
 
-                <!-- Tombol Submit -->
-                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-                    <a href="{{ route('admin.dashboard') }}"
-                        class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all">Batal</a>
-                    <button type="submit"
-                        class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all cursor-pointer">
-                        🚀 Sebarkan Link Tugas
-                    </button>
+                <!-- Sasaran Distribusi Tugas -->
+                <div></div>
+                <label for="sasaran_kerja" class="block text-sm font-medium text-slate-700 mb-2">Target Sasaran
+                    Pegawai</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label
+                        class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer transition-all">
+                        <input type="radio" name="sasaran_kerja" value="SEMUA" checked
+                            class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-slate-800">Semua Pegawai</span>
+                    </label>
+                    <label
+                        class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer transition-all">
+                        <input type="radio" name="sasaran_kerja" value="PNS"
+                            class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-slate-800">PNS Sahaja</span>
+                    </label>
+                    <label
+                        class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer transition-all">
+                        <input type="radio" name="sasaran_kerja" value="NON_PNS"
+                            class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-slate-800">Non-PNS Kontrak</span>
+                    </label>
                 </div>
-            </form>
+        </div>
+
+        <!-- Tombol Submit -->
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <a href="{{ route('admin.dashboard') }}"
+                class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all">Batal</a>
+            <button type="submit"
+                class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all cursor-pointer">
+                🚀 Sebarkan Link Tugas
+            </button>
+        </div>
+        </form>
         </div>
 
     </main>

@@ -55,27 +55,38 @@
                 <div
                     class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
 
-                    <!-- Sisi Kiri: Detail Instansi/Tugas -->
-                    <div class="space-y-2 max-w-xl">
+                    <!-- Sisi Kiri: Info & Status Tugas -->
+                    <div class="space-y-3 max-w-xl">
                         <div class="flex flex-wrap items-center gap-2">
                             <span
                                 class="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
                                 {{ $task->kode_unik }}
                             </span>
 
-                            <!-- Badge Status Verifikasi -->
-                            @if ($task->status_verifikasi === 'menunggu' && $task->url_status == 1)
-                                <span
-                                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 border border-blue-100">Menunggu
-                                    Verifikasi</span>
-                            @elseif($task->status_verifikasi === 'acc')
+                            <!-- Pengaman optional() jika deadline di database kosong/null -->
+                            @if ($task->deadline)
+                                <span class="text-xs text-red-500 font-medium">
+                                    ⏳ Batas: {{ optional($task->deadline)->translatedFormat('d M Y, H:i') }} WITA
+                                </span>
+                            @endif
+
+                            @if ($task->status_verifikasi === 'acc')
                                 <span
                                     class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-100">Disetujui
                                     Admin</span>
+                            @elseif($task->deadline && !$task->file_bukti && now()->greaterThan($task->deadline))
+                                <span
+                                    class="inline-flex items-center rounded-md bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700 border border-rose-200">❌
+                                    Melewati Tenggat (Tidak Mengisi)</span>
+                            @elseif($task->status_verifikasi === 'menunggu' && $task->url_status == 1)
+                                <span
+                                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 border border-blue-100">Menunggu
+                                    Verifikasi</span>
                             @elseif($task->status_verifikasi === 'tolak')
                                 <span
                                     class="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 border border-red-100">Ditolak
-                                    (Mohon Upload Ulang)</span>
+                                    (Mohon Upload Ulang)
+                                </span>
                             @else
                                 <span
                                     class="inline-flex items-center rounded-md bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-500 border border-slate-200">Belum
@@ -93,10 +104,20 @@
                         </div>
                     </div>
 
-                    <!-- Sisi Kanan: Form Upload Bukti -->
+                    <!-- Sisi Kanan: Form Kontrol Upload Bukti -->
                     <div
                         class="w-full md:w-auto shrink-0 border-t border-dashed border-slate-200 pt-4 md:border-0 md:pt-0">
-                        @if ($task->status_verifikasi !== 'acc')
+                        @if ($task->status_verifikasi === 'acc')
+                            <div
+                                class="flex items-center gap-2 text-sm font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-lg">
+                                <span>✅ Tugas Selesai Terverifikasi</span>
+                            </div>
+                        @elseif($task->deadline && !$task->file_bukti && now()->greaterThan($task->deadline))
+                            <div
+                                class="text-sm font-medium text-rose-600 bg-rose-50 border border-rose-100 px-4 py-2 rounded-lg text-center">
+                                🔒 Pengunggahan Ditutup
+                            </div>
+                        @else
                             <form action="{{ route('pegawai.task.upload', $task->id) }}" method="POST"
                                 enctype="multipart/form-data"
                                 class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -115,11 +136,6 @@
                                     Kirim Bukti
                                 </button>
                             </form>
-                        @else
-                            <div
-                                class="flex items-center gap-2 text-sm font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-lg">
-                                <span>✅ Tugas Selesai Terverifikasi</span>
-                            </div>
                         @endif
                     </div>
 

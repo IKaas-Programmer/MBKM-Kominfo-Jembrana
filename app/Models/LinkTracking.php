@@ -19,10 +19,15 @@ class LinkTracking extends Model
         'kode_unik',
         'user_id',
         'nama_tugas',
+        'deadline',
         'url_target',
         'url_status',
         'status_verifikasi',
         'file_bukti',
+    ];
+
+    protected $casts = [
+        'deadline' => 'datetime', // Mengubah string tanggal dari DB menjadi Objek Carbon
     ];
 
     /**

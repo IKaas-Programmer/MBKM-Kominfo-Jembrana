@@ -35,6 +35,11 @@ class PegawaiDashboardController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
+        // VALIDASI KEAMANAN: Cek apakah kiriman form sudah melewati batas waktu
+        if (now()->greaterThan($task->deadline)) {
+            return back()->withErrors(['deadline' => 'Gagal mengunggah! Batas waktu pengerjaan tugas ini telah berakhir.']);
+        }
+
         $request->validate([
             'file_bukti' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'], // Maksimal 2MB
         ]);

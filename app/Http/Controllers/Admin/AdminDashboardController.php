@@ -71,6 +71,7 @@ class AdminDashboardController extends Controller
         $request->validate([
             'nama_tugas' => ['required', 'string', 'max:255'],
             'url_target' => ['required', 'url'],
+            'deadline' => ['required', 'date', 'after:now'],
             'sasaran_kerja' => ['required', 'in:SEMUA,PNS,NON_PNS'],
         ]);
 
@@ -102,6 +103,7 @@ class AdminDashboardController extends Controller
                 'kode_unik' => $kodeUnik,
                 'nama_tugas' => $request->nama_tugas,
                 'url_target' => $request->url_target,
+                'deadline' => $request->deadline,
                 'url_status' => 0,
                 'status_verifikasi' => 'menunggu',
             ]);
