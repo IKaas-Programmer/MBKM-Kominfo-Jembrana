@@ -10,6 +10,7 @@ export default defineConfig({
                 "resources/css/app.css",
                 "resources/js/app.js",
                 "resources/js/pegawai-search.js",
+                "resources/js/auth/login-toggle.js",
             ],
             refresh: true,
 
