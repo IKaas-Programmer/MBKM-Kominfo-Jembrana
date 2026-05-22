@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\LinkTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -14,11 +15,13 @@ class AdminDashboardController extends Controller
     {
         // 1. Ambil data statistik ringkas
         $stats = [
-            'total_pegawai' => User::where('role', 'pegawai')->count(),
             'pegawai_pns' => User::where('role', 'pegawai')->where('status_kerja', 'PNS')->count(),
             'pegawai_non' => User::where('role', 'pegawai')->where('status_kerja', 'NON_PNS')->count(),
             'tugas_menunggu' => LinkTracking::where('status_verifikasi', 'menunggu')->count(),
         ];
+
+        // Ekstrak total pegawai agar sinkron dengan di Blade (untuk link ke halaman pegawai)
+        $totalPegawai = User::where('role', 'pegawai')->count();
 
         // 2. Ambil 5 riwayat pelacakan tautan terbaru beserta data pegawainya (Eager Loading)
         $recentTrackings = LinkTracking::with('user')
@@ -26,7 +29,7 @@ class AdminDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentTrackings'));
+        return view('admin.dashboard', compact('stats', 'recentTrackings', 'totalPegawai'));
     }
 
     /**
@@ -47,7 +50,6 @@ class AdminDashboardController extends Controller
         ]);
 
         $task = LinkTracking::findOrFail($id);
-
         // Jika admin menolak, kita bisa mengosongkan status unggahan agar pegawai bisa kirim ulang
         $urlStatus = ($request->aksi === 'tolak') ? 0 : 1;
 
@@ -75,7 +77,7 @@ class AdminDashboardController extends Controller
             'sasaran_kerja' => ['required', 'in:SEMUA,PNS,NON_PNS'],
         ]);
 
-        // 1. Filter pegawai berdasarkan sasaran yang dipilih admin
+        //  Filter pegawai berdasarkan sasaran yang dipilih admin
         $queryPegawai = User::where('role', 'pegawai');
 
         if ($request->sasaran_kerja !== 'SEMUA') {
@@ -88,26 +90,35 @@ class AdminDashboardController extends Controller
             return back()->withErrors(['sasaran_kerja' => 'Tidak ditemukan pegawai dengan kategori status kerja tersebut.']);
         }
 
-        // 2. Lakukan perulangan untuk membuatkan tugas unik bagi setiap pegawai
-        foreach ($pegawais as $pegawai) {
-            // Membuat kode unik acak sepanjang 8 karakter, contoh: JMB-X9A2B
-            $kodeUnik = 'JMB-' . strtoupper(Str::random(5));
+        //  Gunakan Database Transaction & Bulk Insert untuk performa tinggi
+        DB::transaction(function () use ($pegawais, $request) {
+            $dataInsert = [];
+            $now = now();
 
-            // Pastikan kode_unik benar-benar unik di database
-            while (LinkTracking::where('kode_unik', $kodeUnik)->exists()) {
+            foreach ($pegawais as $pegawai) {
                 $kodeUnik = 'JMB-' . strtoupper(Str::random(5));
+
+                // Pengecekan keunikan kode tetap dipertahankan
+                while (LinkTracking::where('kode_unik', $kodeUnik)->exists()) {
+                    $kodeUnik = 'JMB-' . strtoupper(Str::random(5));
+                }
+
+                $dataInsert[] = [
+                    'user_id' => $pegawai->id,
+                    'kode_unik' => $kodeUnik,
+                    'nama_tugas' => $request->nama_tugas,
+                    'url_target' => $request->url_target,
+                    'deadline' => $request->deadline,
+                    'url_status' => 0,
+                    'status_verifikasi' => 'menunggu',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
             }
 
-            LinkTracking::create([
-                'user_id' => $pegawai->id,
-                'kode_unik' => $kodeUnik,
-                'nama_tugas' => $request->nama_tugas,
-                'url_target' => $request->url_target,
-                'deadline' => $request->deadline,
-                'url_status' => 0,
-                'status_verifikasi' => 'menunggu',
-            ]);
-        }
+            // Eksekusi hanya dengan 1 query massal ke database
+            LinkTracking::insert($dataInsert);
+        });
 
         return redirect()->route('admin.dashboard')->with('success', 'Tugas publikasi berhasil disebarkan ke ' . $pegawais->count() . ' pegawai!');
     }
