@@ -16,6 +16,13 @@ class PegawaiDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $now = now();
+
+        //  OTOMATISASI DATA: Sinkronkan tugas yang melewati deadline menjadi 'kedaluwarsa' sebelum ditarik
+        LinkTracking::where('user_id', $user->id)
+            ->where('status_verifikasi', 'menunggu')
+            ->where('deadline', '<', $now)
+            ->update(['status_verifikasi' => 'kedaluwarsa']);
 
         // Mengambil semua tugas khusus untuk user ini
         $tasks = LinkTracking::where('user_id', $user->id)
@@ -35,9 +42,16 @@ class PegawaiDashboardController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // VALIDASI KEAMANAN: Cek apakah kiriman form sudah melewati batas waktu
+        //  VALIDASI KEAMANAN & REDIRECT KE HALAMAN EXPIRED 
         if (now()->greaterThan($task->deadline)) {
-            return back()->withErrors(['deadline' => 'Gagal mengunggah! Batas waktu pengerjaan tugas ini telah berakhir.']);
+
+            // Pastikan status di DB berubah menjadi kedaluwarsa
+            if ($task->status_verifikasi !== 'kedaluwarsa') {
+                $task->update(['status_verifikasi' => 'kedaluwarsa']);
+            }
+
+            // Tampilkan halaman khusus pemberitahuan kedaluwarsa alih-alih back() dengan error biasa
+            return response()->view('errors.link-expired', compact('task'), 403);
         }
 
         $request->validate([

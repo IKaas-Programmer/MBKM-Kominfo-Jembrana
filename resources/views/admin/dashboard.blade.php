@@ -29,20 +29,12 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 space-y-8">
+    <main class="mx-auto max-w-Full p-4 sm:p-6 lg:p-8 space-y-8">
 
         <!-- Header Page -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard Pemantauan</h1>
-                <p class="text-sm text-slate-500">Ringkasan berkas publikasi dan aktivitas media sosial pegawai.</p>
-            </div>
-            <div>
-                <a href="{{ route('admin.task.create') }}"
-                    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all cursor-pointer">
-                    Buat Tugas Baru
-                </a>
-            </div>
+        <div class="space-y-1">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard Pemantauan</h1>
+            <p class="text-sm text-slate-500">Ringkasan berkas publikasi dan aktivitas media sosial pegawai.</p>
         </div>
 
         <!-- Notifikasi Sukses (Auto-Hide & Manual Close) -->
@@ -130,12 +122,30 @@
                 <p class="mt-4 text-3xl font-bold tracking-tight text-blue-600">{{ $stats['tugas_menunggu'] ?? 0 }}</p>
             </div>
 
-            <!-- Card Pegawai Non-PNS -->
-            <div
-                class="group block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"">
-                <p class="text-sm font-medium text-slate-500">Pegawai Non-ASN / Non-PNS</p>
-                <p class="mt-4 text-3xl font-bold tracking-tight text-amber-600">{{ $stats['pegawai_non'] ?? 0 }}</p>
-            </div>
+            <a href="{{ route('admin.task.create') }}"
+                class="group block p-6 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium text-slate-500 group-hover:text-slate-600">Aksi Cepat Admin</p>
+                        <h4 class="text-2xl font-bold tracking-tight text-slate-900">Buat Tugas Baru</h4>
+                    </div>
+                    <div class="rounded-lg bg-blue-50 p-3 text-blue-600 transition-colors group-hover:bg-blue-100">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div
+                    class="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <span>Buka formulir campaign baru</span>
+                    <svg class="h-3.5 w-3.5 transform translate-x-0 group-hover:translate-x-0.5 transition-transform"
+                        fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7M21 12H3" />
+                    </svg>
+                </div>
+            </a>
 
 
 
@@ -223,7 +233,7 @@
                                             <!-- Tombol Lihat Gambar Bukti -->
                                             <a href="{{ asset('storage/' . $tracking->file_bukti) }}" target="_blank"
                                                 class="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2.5 py-1 rounded-md transition-all">
-                                                👁️ Lihat Bukti
+                                                Lihat Bukti
                                             </a>
 
                                             <!-- Tombol Verifikasi Cepat -->
