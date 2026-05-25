@@ -185,4 +185,35 @@ class AdminDashboardController extends Controller
 
         return view('admin.postingan.show', compact('trackings', 'namaTugas'));
     }
+
+    /**
+     * Memproses verifikasi cepat (ACC / Tolak) dari halaman detail postingan.
+     * (Sinkron dengan rute: admin.tracking.verify dan Model: LinkTracking)
+     */
+    public function verifyTracking(Request $request, $id)
+    {
+        // 1. Validasi input status yang dikirim oleh form di show.blade.php
+        $request->validate([
+            'status' => ['required', 'in:acc,tolak'],
+        ]);
+
+        // 2. Cari data pelacakan berdasarkan ID dengan Model LinkTracking
+        $track = LinkTracking::findOrFail($id);
+
+        // 3. Jika ditolak, ubah url_status menjadi 0 agar pegawai bisa upload ulang bukti
+        $urlStatus = ($request->status === 'tolak') ? 0 : 1;
+
+        // 4. Update data ke database
+        $track->update([
+            'status_verifikasi' => $request->status,
+            'url_status' => $urlStatus
+        ]);
+
+        // 5. Berikan feedback pesan sukses sesuai tindakan
+        $pesan = $request->status === 'acc'
+            ? 'Bukti publikasi pegawai berhasil disetujui (ACC)!'
+            : 'Bukti publikasi ditolak. Pegawai diminta untuk mengunggah ulang.';
+
+        return back()->with('success', $pesan);
+    }
 }
