@@ -64,10 +64,12 @@
             <a href="{{ route('admin.pegawai.index') }}"
                 class="group block rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition-all duration-200 hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer">
                 <div class="flex items-center justify-between">
+
                     <div class="space-y-2">
                         <p class="text-sm font-medium text-slate-500 group-hover:text-slate-600">Total Pegawai</p>
                         <h4 class="text-3xl font-bold tracking-tight text-slate-900">{{ $totalPegawai ?? 0 }}</h4>
                     </div>
+
                     <div class="rounded-lg bg-blue-50 p-3 text-blue-600 transition-colors group-hover:bg-blue-100">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"

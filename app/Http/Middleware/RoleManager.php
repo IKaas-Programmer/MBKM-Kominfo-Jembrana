@@ -14,17 +14,17 @@ class RoleManager
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        // 1. Cek apakah user sudah login
+        // Cek apakah user sudah login
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        // 2. Cek apakah role user saat ini sesuai dengan parameter yang diminta rute
+        // Cek apakah role user saat ini sesuai dengan parameter yang diminta rute
         if (Auth::user()->role === $role) {
             return $next($request);
         }
 
-        // 3. JIKA TIDAK SESUAI (Salah Kamar):
+        // JIKA TIDAK SESUAI (Salah Kamar):
         // Jika pegawai nekat mengakses rute admin, arahkan ke dashboard pegawai dengan aman
         if (Auth::user()->role === 'pegawai' && $role === 'admin') {
             return redirect()->route('pegawai.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman tersebut.');

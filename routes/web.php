@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 // Pastikan folder fisik file ini sesuai dengan namespace di bawah ini!
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\PegawaiController;
 use App\Http\Controllers\Pegawai\PegawaiDashboardController;
 
 /*
@@ -44,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->as('admin.')->group(
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Manajemen / Detail Data Pegawai
-    Route::get('/pegawai', [AdminDashboardController::class, 'managePegawai'])->name('pegawai.index');
+    Route::get('/pegawai', [PegawaiController::class, 'index'])->name('pegawai.index');
 
     // Fitur Sebar Tautan / Broadcast (Menghubungkan Kotak 1 Dashboard ke Controller)
     Route::post('/tugas/broadcast', [AdminDashboardController::class, 'generateBroadcastLinks'])->name('tugas.broadcast');
